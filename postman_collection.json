@@ -1,0 +1,137 @@
+{
+  "info": {
+    "_postman_id": "e6f2b7d3-8c4a-4d5f-b9d1-12f0e7d6c4a1",
+    "name": "Projects & Tasks API (Phase A)",
+    "description": "",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth – Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"alice@example.com\",\"password\":\"secret\"}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth – Login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"alice@example.com\",\"password\":\"secret\"}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Project (protected)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/projects",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\":\"New Project\"}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Projects (public)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/projects"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Project by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/projects/{{projectId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Project (owner only)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/projects/{{projectId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\":\"Updated Title\"}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Project (owner only)",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/projects/{{projectId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "List Tasks under Project",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/projects/{{projectId}}/tasks"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Task (protected)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/projects/{{projectId}}/tasks",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"description\":\"Finish sprint\"}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Task (owner only)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/tasks/{{taskId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"description\":\"Updated task\"}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Task (owner only)",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/tasks/{{taskId}}"
+      },
+      "response": []
+    }
+  ],
+  "_exporter": {
+    "version": "7.2.0",
+    "mode": "collection"
+  }
+}
