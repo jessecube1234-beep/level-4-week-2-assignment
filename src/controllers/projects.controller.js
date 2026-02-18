@@ -41,8 +41,7 @@ export const createProjectCtrl = (req, res) => {
 export const getProjectById = (req, res) => {
   const project = findProjectById(res.locals.repos, req.params.id);
 
-  if (!project)
-    throw { status: 404, code: 'NOT_FOUND', message: 'Project not found' };
+  if (!project) throw { status: 404, code: 'NOT_FOUND', message: 'Project not found' };
   res.ok(project);
 };
 
@@ -51,8 +50,7 @@ export const updateProjectCtrl = (req, res) => {
   validateProjectInput(req.body);
 
   const project = findProjectById(res.locals.repos, req.params.id);
-  if (!project)
-    throw { status: 404, code: 'NOT_FOUND', message: 'Project not found' };
+  if (!project) throw { status: 404, code: 'NOT_FOUND', message: 'Project not found' };
 
   if (project.authorId !== req.user.id)
     throw { status: 403, code: 'FORBIDDEN', message: 'Not owner' };
@@ -64,8 +62,7 @@ export const updateProjectCtrl = (req, res) => {
 /* Delete a project */
 export const deleteProjectCtrl = (req, res) => {
   const project = findProjectById(res.locals.repos, req.params.id);
-  if (!project)
-    throw { status: 404, code: 'NOT_FOUND', message: 'Project not found' };
+  if (!project) throw { status: 404, code: 'NOT_FOUND', message: 'Project not found' };
 
   if (project.authorId !== req.user.id)
     throw { status: 403, code: 'FORBIDDEN', message: 'Not owner' };

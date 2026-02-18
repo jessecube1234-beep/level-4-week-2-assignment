@@ -43,11 +43,9 @@ export const updateTaskCtrl = (req, res) => {
   validateTaskInput(req.body);
 
   const task = findTaskById(res.locals.repos, req.params.id);
-  if (!task)
-    throw { status: 404, code: 'NOT_FOUND', message: 'Task not found' };
+  if (!task) throw { status: 404, code: 'NOT_FOUND', message: 'Task not found' };
 
-  if (task.authorId !== req.user.id)
-    throw { status: 403, code: 'FORBIDDEN', message: 'Not owner' };
+  if (task.authorId !== req.user.id) throw { status: 403, code: 'FORBIDDEN', message: 'Not owner' };
 
   const updated = updateTask(res.locals.repos, req.params.id, {
     description: req.body.description,
@@ -58,11 +56,9 @@ export const updateTaskCtrl = (req, res) => {
 /* Delete a task */
 export const deleteTaskCtrl = (req, res) => {
   const task = findTaskById(res.locals.repos, req.params.id);
-  if (!task)
-    throw { status: 404, code: 'NOT_FOUND', message: 'Task not found' };
+  if (!task) throw { status: 404, code: 'NOT_FOUND', message: 'Task not found' };
 
-  if (task.authorId !== req.user.id)
-    throw { status: 403, code: 'FORBIDDEN', message: 'Not owner' };
+  if (task.authorId !== req.user.id) throw { status: 403, code: 'FORBIDDEN', message: 'Not owner' };
 
   deleteTask(res.locals.repos, req.params.id);
   res.ok();

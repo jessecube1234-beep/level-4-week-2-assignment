@@ -44,7 +44,6 @@ test('create & list projects (happy path)', async () => {
   expect(res2.body.data.length).toBe(1);
 });
 
-
 /* Error – validation (missing title)       */
 test('create project fails without title', async () => {
   const { app, token } = await setup();

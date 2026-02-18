@@ -12,7 +12,6 @@ export const registerCtrl = async (req, res, next) => {
       throw { status: 400, code: 'VALIDATION_ERROR', message: 'email and password required' };
     }
 
-
     const existing = findUserByEmail(res.locals.repos, email);
     if (existing) {
       throw { status: 409, code: 'EMAIL_EXISTS', message: 'Email already registered' };

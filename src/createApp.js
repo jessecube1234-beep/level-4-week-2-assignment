@@ -10,7 +10,6 @@ import { projectsRouter } from '#routes/projects.routes';
 import { tasksRouter } from '#routes/tasks.routes';
 import { authRouter } from '#routes/auth.routes';
 
-
 export const createApp = ({ repos, config }) => {
   const app = express();
   app.locals.config = config;
@@ -33,7 +32,6 @@ export const createApp = ({ repos, config }) => {
   app.use('/projects', projectsRouter);
   app.use('/tasks', tasksRouter); // flat route for convenience
   app.use('/auth', authRouter);
-
 
   // nested route: /projects/:id/tasks
   app.use('/projects/:projectId/tasks', tasksRouter);

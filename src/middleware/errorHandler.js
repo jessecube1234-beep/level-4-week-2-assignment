@@ -23,8 +23,7 @@ export const errorHandler = (err, _req, res, _next) => {
   const code = err.code || 'INTERNAL_ERROR';
 
   // Hide internal error details for 500 errors
-  const message =
-    status === 500 ? 'Something went wrong' : err.message || 'Error';
+  const message = status === 500 ? 'Something went wrong' : err.message || 'Error';
 
   // Send standardized error response
   res.status(status).json({

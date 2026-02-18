@@ -42,9 +42,7 @@ test('register & login (happy path)', async () => {
 test('register fails without email/password', async () => {
   const { app } = await setup();
 
-  const res = await request(app)
-    .post('/auth/register')
-    .send({}); // missing email & password
+  const res = await request(app).post('/auth/register').send({}); // missing email & password
 
   expect(res.status).toBe(400);
   expect(res.body.ok).toBe(false);

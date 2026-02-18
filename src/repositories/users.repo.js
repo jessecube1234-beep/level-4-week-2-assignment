@@ -8,8 +8,6 @@ export const createUser = (repos, user) => {
   return user;
 };
 
-export const findUserByEmail = (repos, email) =>
-  repos.users.find((u) => u.email === email);
+export const findUserByEmail = (repos, email) => repos.users.find((u) => u.email === email);
 
-export const findUserById = (repos, id) =>
-  repos.users.find((u) => u.id === id);
+export const findUserById = (repos, id) => repos.users.find((u) => u.id === id);
