@@ -1,3 +1,10 @@
+/**
+ * This file defines the routes for task-related actions.
+ * It handles listing, creating, updating, and deleting tasks.
+ * Some routes are protected with authentication and
+ * task ID validation middleware. It also uses mergeParams
+ * to access the parent project ID from the URL.
+ */
 import express from 'express';
 import {
   listTasks,

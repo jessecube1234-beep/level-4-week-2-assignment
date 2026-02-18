@@ -1,3 +1,9 @@
+/**
+ * This file handles basic task CRUD operations.
+ * It lets me create, read, update, and delete tasks
+ * from the repos.tasks array. It also allows me to
+ * get all tasks that belong to a specific project.
+ */
 export const createTask = (repos, task) => {
   repos.tasks.push(task);
   return task;

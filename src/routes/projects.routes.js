@@ -1,4 +1,9 @@
-// src/routes/projects.routes.js
+/**
+ * This file defines the routes for project-related actions.
+ * It handles listing, creating, retrieving, updating,
+ * and deleting projects. Some routes are protected with
+ * authentication and ID validation middleware.
+ */
 import express from 'express';
 import {
   listProjects,

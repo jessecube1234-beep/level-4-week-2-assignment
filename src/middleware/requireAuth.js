@@ -1,3 +1,8 @@
+/**
+ * Authentication middleware.
+ * Verifies JWT from Authorization header and attaches
+ * the authenticated user to req.user.
+ */
 import { verifyToken } from '#utils/jwt';
 
 export const requireAuth = (req, res, next) => {

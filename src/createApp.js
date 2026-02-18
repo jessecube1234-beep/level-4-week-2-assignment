@@ -8,6 +8,8 @@ import { respond } from '#middleware/respond';
 
 import { projectsRouter } from '#routes/projects.routes';
 import { tasksRouter } from '#routes/tasks.routes';
+import { authRouter } from '#routes/auth.routes';
+
 
 export const createApp = ({ repos, config }) => {
   const app = express();
@@ -30,6 +32,8 @@ export const createApp = ({ repos, config }) => {
   // routes
   app.use('/projects', projectsRouter);
   app.use('/tasks', tasksRouter); // flat route for convenience
+  app.use('/auth', authRouter);
+
 
   // nested route: /projects/:id/tasks
   app.use('/projects/:projectId/tasks', tasksRouter);

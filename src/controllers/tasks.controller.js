@@ -24,10 +24,7 @@ export const createTaskCtrl = (req, res) => {
   const repoProject = res.locals.repos.projects.find((p) => p.id === projectId);
   if (!repoProject) {
     // Unknown project – respond with 404
-    return res.status(404).json({
-      ok: false,
-      error: { code: 'NOT_FOUND', message: 'Project not found' },
-    });
+    throw { status: 404, code: 'NOT_FOUND', message: 'Project not found' };
   }
 
   const task = {
@@ -47,16 +44,10 @@ export const updateTaskCtrl = (req, res) => {
 
   const task = findTaskById(res.locals.repos, req.params.id);
   if (!task)
-    return res.status(404).json({
-      ok: false,
-      error: { code: 'NOT_FOUND', message: 'Task not found' },
-    });
+    throw { status: 404, code: 'NOT_FOUND', message: 'Task not found' };
 
   if (task.authorId !== req.user.id)
-    return res.status(403).json({
-      ok: false,
-      error: { code: 'FORBIDDEN', message: 'Not owner' },
-    });
+    throw { status: 403, code: 'FORBIDDEN', message: 'Not owner' };
 
   const updated = updateTask(res.locals.repos, req.params.id, {
     description: req.body.description,
@@ -68,16 +59,10 @@ export const updateTaskCtrl = (req, res) => {
 export const deleteTaskCtrl = (req, res) => {
   const task = findTaskById(res.locals.repos, req.params.id);
   if (!task)
-    return res.status(404).json({
-      ok: false,
-      error: { code: 'NOT_FOUND', message: 'Task not found' },
-    });
+    throw { status: 404, code: 'NOT_FOUND', message: 'Task not found' };
 
   if (task.authorId !== req.user.id)
-    return res.status(403).json({
-      ok: false,
-      error: { code: 'FORBIDDEN', message: 'Not owner' },
-    });
+    throw { status: 403, code: 'FORBIDDEN', message: 'Not owner' };
 
   deleteTask(res.locals.repos, req.params.id);
   res.ok();

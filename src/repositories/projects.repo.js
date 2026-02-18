@@ -1,3 +1,9 @@
+/**
+ * This file handles basic project CRUD operations.
+ * It lets me create, read, update, and delete projects
+ * from the repos.projects array. Everything here works
+ * directly with the in-memory projects list.
+ */
 export const createProject = (repos, project) => {
   repos.projects.push(project);
   return project;
