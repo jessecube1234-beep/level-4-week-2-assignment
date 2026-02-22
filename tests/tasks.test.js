@@ -77,4 +77,8 @@ test('POST /projects/:id/tasks requires auth token', async () => {
     .send({ description: 'Auth test' });
 
   expect(res.status).toBe(401);
+  expect(res.body.ok).toBe(false);
+  expect(res.body.error.code).toBe('UNAUTHENTICATED');
+  expect(res.body.error.details).toBeNull();
+  expect(typeof res.body.error.requestId).toBe('string');
 });

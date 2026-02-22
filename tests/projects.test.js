@@ -36,6 +36,9 @@ test('create & list projects (happy path)', async () => {
   expect(res1.status).toBe(201);
   expect(res1.body.ok).toBe(true);
   expect(res1.body.data.title).toBe('My Project');
+  expect(res1.body.data.id).toMatch(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+  );
 
   // ---- List projects
   const res2 = await request(app).get('/projects');
@@ -72,4 +75,8 @@ test('POST /projects requires auth token', async () => {
   const res = await request(app).post('/projects').send({ title: 'Should Fail' });
 
   expect(res.status).toBe(401);
+  expect(res.body.ok).toBe(false);
+  expect(res.body.error.code).toBe('UNAUTHENTICATED');
+  expect(res.body.error.details).toBeNull();
+  expect(typeof res.body.error.requestId).toBe('string');
 });

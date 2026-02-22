@@ -50,7 +50,7 @@
       "request": {
         "method": "GET",
         "header": [],
-        "url": "{{baseUrl}}/projects"
+        "url": "{{baseUrl}}/projects?limit=5&offset=0"
       },
       "response": []
     },
