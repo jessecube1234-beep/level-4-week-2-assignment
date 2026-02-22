@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { createUser, findUserByEmail } from '#repositories/users.repo';
 import { hashPassword, comparePasswords } from '#utils/password';
 import { signToken } from '#utils/jwt';
@@ -20,7 +20,7 @@ export const registerCtrl = async (req, res, next) => {
     const hashed = await hashPassword(password);
 
     const user = {
-      id: uuidv4(),
+      id: randomUUID(),
       email,
       password: hashed,
     };

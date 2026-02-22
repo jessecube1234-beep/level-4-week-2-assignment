@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 import {
   createProject,
@@ -28,7 +28,7 @@ export const createProjectCtrl = (req, res) => {
   validateProjectInput(req.body);
 
   const project = {
-    id: uuidv4(),
+    id: randomUUID(),
     title: req.body.title,
     authorId: req.user.id,
   };

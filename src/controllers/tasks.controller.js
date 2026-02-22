@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import {
   createTask,
   getTasksByProjectId,
@@ -28,7 +28,7 @@ export const createTaskCtrl = (req, res) => {
   }
 
   const task = {
-    id: uuidv4(),
+    id: randomUUID(),
     projectId,
     description: req.body.description,
     authorId: req.user.id,

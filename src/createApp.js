@@ -20,7 +20,7 @@ export const createApp = ({ repos, config }) => {
   app.use(respond);
 
   // health
-  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+  app.get('/health', (_req, res) => res.ok({ status: 'ok' }));
 
   // inject repos
   app.use((_req, res, next) => {
