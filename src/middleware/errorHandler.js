@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import { Prisma } from '@prisma/client';
 
 /**
  * Global error handling middleware.
@@ -15,6 +16,24 @@ import { randomUUID } from 'crypto';
 export const errorHandler = (err, _req, res, _next) => {
   // Log the full error to the server console for debugging
   console.error(err);
+
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err.code === 'P2002') {
+      err.status = 409;
+      err.code = 'UNIQUE_CONSTRAINT';
+      err.message = 'Unique constraint violated';
+    }
+    if (err.code === 'P2003') {
+      err.status = 409;
+      err.code = 'FK_CONSTRAINT';
+      err.message = 'Foreign key constraint violated';
+    }
+    if (err.code === 'P2025') {
+      err.status = 404;
+      err.code = 'NOT_FOUND';
+      err.message = 'Record not found';
+    }
+  }
 
   // Use provided status or default to 500
   const status = err.status || 500;

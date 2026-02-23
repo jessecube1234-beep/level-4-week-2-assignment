@@ -1,30 +1,44 @@
-/**
- * This file handles basic project CRUD operations.
- * It lets me create, read, update, and delete projects
- * from the repos.projects array. Everything here works
- * directly with the in-memory projects list.
- */
-export const createProject = (repos, project) => {
-  repos.projects.push(project);
-  return project;
+const parseInclude = (includeValue) => {
+  if (!includeValue) return undefined;
+  const tokens = includeValue
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean);
+  const include = {};
+  if (tokens.includes('tasks')) include.tasks = true;
+  if (tokens.includes('author')) include.author = { select: { id: true, email: true } };
+  return Object.keys(include).length ? include : undefined;
 };
 
-export const getAllProjects = (repos, { limit = 20, offset = 0 }) => {
-  return repos.projects.slice(offset, offset + limit);
-};
+export const createProjectsRepo = (prisma) => ({
+  list: async ({ limit = 20, offset = 0, authorId, includeCounts = false }) => {
+    const where = authorId ? { authorId } : undefined;
+    const include = includeCounts ? { _count: { select: { tasks: true } } } : undefined;
+    return prisma.project.findMany({
+      where,
+      include,
+      orderBy: { createdAt: 'desc' },
+      skip: offset,
+      take: limit,
+    });
+  },
 
-export const findProjectById = (repos, id) => repos.projects.find((p) => p.id === id);
+  create: (data) => prisma.project.create({ data }),
 
-export const updateProject = (repos, id, data) => {
-  const project = findProjectById(repos, id);
-  if (!project) return null;
-  Object.assign(project, data);
-  return project;
-};
+  findById: (id, includeValue) =>
+    prisma.project.findUnique({
+      where: { id },
+      include: parseInclude(includeValue),
+    }),
 
-export const deleteProject = (repos, id) => {
-  const index = repos.projects.findIndex((p) => p.id === id);
-  if (index === -1) return false;
-  repos.projects.splice(index, 1);
-  return true;
-};
+  updateById: (id, data) =>
+    prisma.project.update({
+      where: { id },
+      data,
+    }),
+
+  deleteById: (id) =>
+    prisma.project.delete({
+      where: { id },
+    }),
+});

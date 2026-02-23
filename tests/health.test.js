@@ -1,12 +1,18 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll } from 'vitest';
 import request from 'supertest';
 
-import { createApp } from '../src/createApp.js';
-import { createRepos } from '../src/repositories/index.js';
+import { setupIntegrationApp, runIntegration } from './helpers/integration.js';
+import { prisma } from '../src/db/prisma.js';
 
-describe('GET /health', () => {
+const describeIfIntegration = runIntegration ? describe : describe.skip;
+
+describeIfIntegration('GET /health', () => {
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
   it('returns ok', async () => {
-    const app = createApp({ repos: await createRepos() });
+    const { app } = setupIntegrationApp();
     const res = await request(app).get('/health');
 
     expect(res.status).toBe(200);
