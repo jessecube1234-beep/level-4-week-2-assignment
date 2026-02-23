@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { test, expect, beforeEach, afterAll } from 'vitest';
 import request from 'supertest';
+import { randomUUID } from 'crypto';
 
 import { hashPassword } from '#utils/password';
 import { prisma } from '../src/db/prisma.js';
@@ -63,11 +64,12 @@ itIfIntegration('register fails if email already exists', async () => {
 
   // existing user
   const password = await hashPassword('secret');
-  await repos.users.create({ id: '11111111-1111-4111-8111-111111111111', email: 'a@b.c', password });
+  const existingEmail = `existing.${randomUUID()}@example.com`;
+  await repos.users.create({ id: randomUUID(), email: existingEmail, password });
 
   const res = await request(app)
     .post('/auth/register')
-    .send({ email: 'a@b.c', password: 'secret' });
+    .send({ email: existingEmail, password: 'secret' });
 
   expect(res.status).toBe(409);
   expect(res.body.ok).toBe(false);
@@ -78,11 +80,12 @@ itIfIntegration('login fails with wrong password', async () => {
   const { app, repos } = await setup();
 
   const password = await hashPassword('secret');
-  await repos.users.create({ id: '22222222-2222-4222-8222-222222222222', email: 'a@b.c', password });
+  const email = `login.${randomUUID()}@example.com`;
+  await repos.users.create({ id: randomUUID(), email, password });
 
   const res = await request(app)
     .post('/auth/login')
-    .send({ email: 'a@b.c', password: 'wrong-password' });
+    .send({ email, password: 'wrong-password' });
 
   expect(res.status).toBe(401);
   expect(res.body.ok).toBe(false);

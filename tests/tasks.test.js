@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { test, expect, beforeEach, afterAll } from 'vitest';
 import request from 'supertest';
+import { randomUUID } from 'crypto';
 
 import { hashPassword } from '#utils/password';
 import { signToken } from '#utils/jwt';
@@ -17,8 +18,8 @@ const setup = async () => {
 
   // Dummy user
   const password = await hashPassword('secret');
-  const userId = '11111111-1111-4111-8111-111111111111';
-  await repos.users.create({ id: userId, email: 'a@b.c', password });
+  const userId = randomUUID();
+  await repos.users.create({ id: userId, email: `tasks.${userId}@example.com`, password });
 
   const token = signToken({ userId });
 
@@ -70,7 +71,7 @@ itIfIntegration('create task on unknown project returns 404', async () => {
   const { app, token } = await setup();
 
   const res = await request(app)
-    .post('/projects/does-not-exist/tasks')
+    .post(`/projects/${randomUUID()}/tasks`)
     .set('Authorization', `Bearer ${token}`)
     .send({ description: 'Should fail' });
 

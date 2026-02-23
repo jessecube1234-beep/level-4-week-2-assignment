@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { test, expect, beforeEach, afterAll } from 'vitest';
 import request from 'supertest';
+import { randomUUID } from 'crypto';
 
 import { hashPassword } from '#utils/password';
 import { signToken } from '#utils/jwt';
@@ -17,11 +18,11 @@ const setup = async () => {
 
   // Create a dummy user
   const password = await hashPassword('secret');
-  const userId = '11111111-1111-4111-8111-111111111111';
-  await repos.users.create({ id: userId, email: 'a@b.c', password });
+  const userId = randomUUID();
+  await repos.users.create({ id: userId, email: `projects.${userId}@example.com`, password });
 
   const token = signToken({ userId });
-  return { app, token };
+  return { app, token, userId };
 };
 
 beforeEach(async () => {
@@ -34,7 +35,7 @@ afterAll(async () => {
 
 /* Happy path – create & list projects      */
 itIfIntegration('create & list projects (happy path)', async () => {
-  const { app, token } = await setup();
+  const { app, token, userId } = await setup();
 
   // ---- Create a project
   const res1 = await request(app)
@@ -50,7 +51,7 @@ itIfIntegration('create & list projects (happy path)', async () => {
   );
 
   // ---- List projects
-  const res2 = await request(app).get('/projects');
+  const res2 = await request(app).get(`/projects?authorId=${userId}`);
   expect(res2.status).toBe(200);
   expect(Array.isArray(res2.body.data)).toBe(true);
   expect(res2.body.data.length).toBe(1);
@@ -71,7 +72,7 @@ itIfIntegration('delete project returns 404 for unknown id', async () => {
   const { app, token } = await setup();
 
   const res = await request(app)
-    .delete('/projects/unknown-id')
+    .delete(`/projects/${randomUUID()}`)
     .set('Authorization', `Bearer ${token}`);
 
   expect(res.status).toBe(404);

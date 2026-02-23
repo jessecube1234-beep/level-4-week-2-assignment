@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { createApp } from '#app';
 import { createRepos } from '#repositories/index';
 import { prisma } from '../../src/db/prisma.js';

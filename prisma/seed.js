@@ -1,8 +1,6 @@
 import { randomUUID } from 'crypto';
-import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '../src/utils/password.js';
-
-const prisma = new PrismaClient();
+import { prisma } from '../src/db/prisma.js';
 
 async function main() {
   const userId = randomUUID();
