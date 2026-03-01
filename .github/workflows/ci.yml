@@ -2,15 +2,34 @@ name: CI Actions
 
 on:
   pull_request:
-    branches:
-      - main
+  push:
+    branches: [main]
 
 jobs:
-  test-and-lint:
+  test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [22.x]
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: level4_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d level4_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/level4_test?schema=public
+      JWT_SECRET: ci-test-secret
+      PORT: 3000
+      RUN_INTEGRATION_TESTS: "true"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,11 +37,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Prisma generate
+        run: npm run db:generate
+
+      - name: Apply migrations (deploy)
+        run: npm run db:migrate:deploy
 
       - name: Run lint
         run: npm run lint

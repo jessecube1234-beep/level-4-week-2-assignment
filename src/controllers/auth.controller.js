@@ -1,5 +1,4 @@
 import { randomUUID } from 'crypto';
-import { createUser, findUserByEmail } from '#repositories/users.repo';
 import { hashPassword, comparePasswords } from '#utils/password';
 import { signToken } from '#utils/jwt';
 
@@ -12,7 +11,7 @@ export const registerCtrl = async (req, res, next) => {
       throw { status: 400, code: 'VALIDATION_ERROR', message: 'email and password required' };
     }
 
-    const existing = findUserByEmail(res.locals.repos, email);
+    const existing = await res.locals.repos.users.findByEmail(email);
     if (existing) {
       throw { status: 409, code: 'EMAIL_EXISTS', message: 'Email already registered' };
     }
@@ -25,7 +24,7 @@ export const registerCtrl = async (req, res, next) => {
       password: hashed,
     };
 
-    createUser(res.locals.repos, user);
+    await res.locals.repos.users.create(user);
 
     const token = signToken({ userId: user.id });
 
@@ -44,7 +43,7 @@ export const loginCtrl = async (req, res, next) => {
       throw { status: 400, code: 'VALIDATION_ERROR', message: 'email and password required' };
     }
 
-    const user = findUserByEmail(res.locals.repos, email);
+    const user = await res.locals.repos.users.findByEmail(email);
     if (!user) {
       throw { status: 401, code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
     }

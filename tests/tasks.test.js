@@ -1,23 +1,25 @@
 import 'dotenv/config';
-import { test, expect } from 'vitest';
+import { test, expect, beforeEach, afterAll } from 'vitest';
 import request from 'supertest';
+import { randomUUID } from 'crypto';
 
-import { createApp } from '#app';
-import { createRepos } from '#repositories/index';
 import { hashPassword } from '#utils/password';
 import { signToken } from '#utils/jwt';
+import { prisma } from '../src/db/prisma.js';
+import { runIntegration, setupIntegrationApp, resetDatabase } from './helpers/integration.js';
+
+const itIfIntegration = runIntegration ? test : test.skip;
 
 /**
  * Sets up an app instance with a user and one project.
  */
 const setup = async () => {
-  const repos = await createRepos();
-  const app = createApp({ repos, config: {} });
+  const { app, repos } = setupIntegrationApp();
 
   // Dummy user
   const password = await hashPassword('secret');
-  const userId = 'user-1';
-  repos.users = [{ id: userId, email: 'a@b.c', password }];
+  const userId = randomUUID();
+  await repos.users.create({ id: userId, email: `tasks.${userId}@example.com`, password });
 
   const token = signToken({ userId });
 
@@ -30,8 +32,16 @@ const setup = async () => {
   return { app, token, projectId: projRes.body.data.id };
 };
 
+beforeEach(async () => {
+  await resetDatabase();
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
 /* Happy path – create a task               */
-test('create task under project (happy path)', async () => {
+itIfIntegration('create task under project (happy path)', async () => {
   const { app, token, projectId } = await setup();
 
   const res = await request(app)
@@ -45,7 +55,7 @@ test('create task under project (happy path)', async () => {
 });
 
 /* Error – validation (missing description) */
-test('create task fails without description', async () => {
+itIfIntegration('create task fails without description', async () => {
   const { app, token, projectId } = await setup();
 
   const res = await request(app)
@@ -57,11 +67,11 @@ test('create task fails without description', async () => {
 });
 
 /* Error – not‑found (unknown project)      */
-test('create task on unknown project returns 404', async () => {
+itIfIntegration('create task on unknown project returns 404', async () => {
   const { app, token } = await setup();
 
   const res = await request(app)
-    .post('/projects/does-not-exist/tasks')
+    .post(`/projects/${randomUUID()}/tasks`)
     .set('Authorization', `Bearer ${token}`)
     .send({ description: 'Should fail' });
 
@@ -69,7 +79,7 @@ test('create task on unknown project returns 404', async () => {
 });
 
 /* Auth – protected route rejects no token   */
-test('POST /projects/:id/tasks requires auth token', async () => {
+itIfIntegration('POST /projects/:id/tasks requires auth token', async () => {
   const { app, projectId } = await setup(); // no token
 
   const res = await request(app)

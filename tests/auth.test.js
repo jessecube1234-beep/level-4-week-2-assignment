@@ -1,22 +1,32 @@
 import 'dotenv/config';
-import { test, expect } from 'vitest';
+import { test, expect, beforeEach, afterAll } from 'vitest';
 import request from 'supertest';
+import { randomUUID } from 'crypto';
 
-import { createApp } from '#app';
-import { createRepos } from '#repositories/index';
 import { hashPassword } from '#utils/password';
+import { prisma } from '../src/db/prisma.js';
+import { runIntegration, setupIntegrationApp, resetDatabase } from './helpers/integration.js';
+
+const itIfIntegration = runIntegration ? test : test.skip;
 
 /**
  * Helper that creates a fresh app instance with empty repos.
  */
 const setup = async () => {
-  const repos = await createRepos();
-  const app = createApp({ repos, config: {} });
+  const { app, repos } = setupIntegrationApp();
   return { app, repos };
 };
 
+beforeEach(async () => {
+  await resetDatabase();
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
 /* Happy path  for register & login */
-test('register & login (happy path)', async () => {
+itIfIntegration('register & login (happy path)', async () => {
   const { app } = await setup();
 
   // Register
@@ -39,7 +49,7 @@ test('register & login (happy path)', async () => {
 });
 
 /* Error – validation (missing fields) */
-test('register fails without email/password', async () => {
+itIfIntegration('register fails without email/password', async () => {
   const { app } = await setup();
 
   const res = await request(app).post('/auth/register').send({}); // missing email & password
@@ -49,31 +59,33 @@ test('register fails without email/password', async () => {
 });
 
 /* Error – duplicate email */
-test('register fails if email already exists', async () => {
+itIfIntegration('register fails if email already exists', async () => {
   const { app, repos } = await setup();
 
   // existing user
   const password = await hashPassword('secret');
-  repos.users = [{ id: 'user-1', email: 'a@b.c', password }];
+  const existingEmail = `existing.${randomUUID()}@example.com`;
+  await repos.users.create({ id: randomUUID(), email: existingEmail, password });
 
   const res = await request(app)
     .post('/auth/register')
-    .send({ email: 'a@b.c', password: 'secret' });
+    .send({ email: existingEmail, password: 'secret' });
 
   expect(res.status).toBe(409);
   expect(res.body.ok).toBe(false);
 });
 
 /* Error – invalid credentials */
-test('login fails with wrong password', async () => {
+itIfIntegration('login fails with wrong password', async () => {
   const { app, repos } = await setup();
 
   const password = await hashPassword('secret');
-  repos.users = [{ id: 'user-1', email: 'a@b.c', password }];
+  const email = `login.${randomUUID()}@example.com`;
+  await repos.users.create({ id: randomUUID(), email, password });
 
   const res = await request(app)
     .post('/auth/login')
-    .send({ email: 'a@b.c', password: 'wrong-password' });
+    .send({ email, password: 'wrong-password' });
 
   expect(res.status).toBe(401);
   expect(res.body.ok).toBe(false);

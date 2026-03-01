@@ -1,13 +1,28 @@
-# Level 4 Week 2 - Checkpoint A (Phase 1)
+# Level 4 Week 2 Assignment
 
-Express REST API for `projects` and `tasks` with in-memory storage, JWT auth, ownership checks, validation middleware, and a global response envelope.
+Two-phase API project using Express with `projects` (primary) and `tasks` (related).
 
-## Tech
+- Phase 1: In-memory CRUD
+- Phase 2: Supabase Postgres + Prisma ORM v7
+
+This branch (`feat/b`) is the Phase 2 implementation.
+
+## Tech Stack
 
 - JavaScript (ES Modules)
 - Express
-- JWT (`jsonwebtoken`)
+- Prisma ORM v7
+- Supabase Postgres
+- JWT auth
 - Vitest + Supertest
+
+## Project Structure
+
+- `src/` API code (routes/controllers/middleware/repositories/db)
+- `tests/` integration tests
+- `prisma/` schema, migrations, seed
+- `docs/` extra documentation (`rls-notes.md`)
+- `.github/workflows/ci.yml` CI pipeline
 
 ## Setup
 
@@ -17,23 +32,46 @@ Express REST API for `projects` and `tasks` with in-memory storage, JWT auth, ow
 npm install
 ```
 
-2. Configure environment
+2. Create `.env` from example
 
 ```bash
 copy .env.example .env
 ```
 
-3. Run dev server
+3. Add your Supabase Session Pooler URL to `DATABASE_URL` (port `5432`)
+
+4. Generate Prisma client
+
+```bash
+npm run db:generate
+```
+
+5. Create/apply local migration
+
+```bash
+npm run db:migrate:dev
+```
+
+6. Seed database
+
+```bash
+npm run db:seed
+```
+
+7. Start dev server
 
 ```bash
 npm run dev
 ```
 
-4. Run tests
+## Scripts
 
-```bash
-npm test
-```
+- `npm run db:generate`
+- `npm run db:migrate:dev`
+- `npm run db:migrate:deploy`
+- `npm run db:seed`
+- `npm run db:reset`
+- `npm run test:run`
 
 ## Response Format
 
@@ -57,51 +95,59 @@ Error:
 }
 ```
 
-## Auth
+## Auth Endpoints
 
 - `POST /auth/register`
 - `POST /auth/login`
-- Protected routes require `Authorization: Bearer <token>`
 
-Example register request:
+Protected routes require:
 
-```http
-POST /auth/register
-Content-Type: application/json
+`Authorization: Bearer <token>`
 
-{ "email": "alice@example.com", "password": "secret123" }
-```
+## Resource Endpoints
 
-Example register response:
-
-```json
-{ "ok": true, "data": { "token": "<jwt>" }, "meta": {} }
-```
-
-## Endpoints
-
-### Projects (Primary)
+Projects:
 
 - `GET /projects?limit=10&offset=0`
+- `GET /projects?includeCounts=true`
+- `GET /projects?authorId=<uuid>`
 - `POST /projects` (auth required)
 - `GET /projects/:id`
-- `PUT /projects/:id` (auth required, owner only)
-- `DELETE /projects/:id` (auth required, owner only)
+- `GET /projects/:id?include=tasks,author`
+- `PUT /projects/:id` (auth required + owner only)
+- `DELETE /projects/:id` (auth required + owner only)
 
-### Tasks (Related)
+Tasks:
 
 - `GET /projects/:id/tasks`
 - `POST /projects/:id/tasks` (auth required)
-- `PUT /tasks/:id` (auth required, owner only)
-- `DELETE /tasks/:id` (auth required, owner only)
+- `PUT /tasks/:id` (auth required + owner only)
+- `DELETE /tasks/:id` (auth required + owner only)
 
-### Health
+## Prisma Error Mapping
 
-- `GET /health`
+Global error handler maps:
 
-## Notes for Phase 1
+- unique constraint -> `409`
+- foreign key constraint -> `409`
+- record not found -> `404`
 
-- Data is in-memory only (resets when server restarts).
-- IDs are generated with `crypto.randomUUID()`.
-- Status codes used: `200`, `201`, `400`, `401`, `403`, `404`, `409`.
-- Postman collection: `postman_collection.json`
+## Testing
+
+Tests are DB integration tests. Set:
+
+```env
+RUN_INTEGRATION_TESTS=true
+```
+
+Then run:
+
+```bash
+npm run test:run
+```
+
+## Postman
+
+- `postman_collection.json`
+
+Collection includes register/login + project/task flows.
